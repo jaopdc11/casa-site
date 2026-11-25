@@ -1,0 +1,243 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Tokens por PAPEL, em canais "r g b" (casam com rgb(var(--x) / alpha) do
+ * tailwind.config.js). Identidade "escuro sóbrio" do fono: o ESCURO é o
+ * principal; o claro deriva dos mesmos papéis. Tela nenhuma usa cor literal —
+ * se faltar um papel, ele nasce aqui, não num className. Ver DESIGN.md.
+ */
+@layer base {
+  :root {
+    color-scheme: light;
+    --fundo: 244 246 249;
+    --superficie: 255 255 255;
+    --superficie-alta: 241 245 249;
+    --campo: 248 250 252;
+    --borda: 226 232 240;
+    --borda-forte: 203 213 225;
+    --texto: 15 23 42;
+    --texto-suave: 71 85 105;
+    --texto-tenue: 100 116 139;
+    /* no claro o teal desce um tom (teal-600): o #14b8a6 sobre branco não passa AA */
+    --acento: 13 148 136;
+    --acento-suave: 15 118 110;
+    --sobre-acento: 255 255 255;
+    --sucesso: 5 150 105;
+    --atencao: 217 119 6;
+    --perigo: 220 38 38;
+    /* fundos tintados = a cor do estado a ~10% sobre a superfície (sólidos, pra
+       não somarem opacidade quando um tintado fica em cima do outro) */
+    --tinta-acento: 231 244 243;
+    --tinta-sucesso: 230 245 240;
+    --tinta-atencao: 251 241 230;
+    --tinta-perigo: 252 233 233;
+    --sombra-card: 0 1px 2px rgba(15, 23, 42, 0.05), 0 1px 0 rgba(255, 255, 255, 0.6) inset;
+    --sombra-flutuante: 0 12px 32px rgba(15, 23, 42, 0.14);
+  }
+
+  .dark {
+    color-scheme: dark;
+    --fundo: 6 9 16; /* base-950 #060910 */
+    --superficie: 15 23 42; /* base-800 #0f172a — cards */
+    --superficie-alta: 30 41 59; /* base-700 #1e293b — pressionado, chip, trilho */
+    --campo: 10 14 26; /* base-900 #0a0e1a — inputs, nav */
+    --borda: 39 46 63; /* ≈ white/10 sobre o card, mas sólido */
+    --borda-forte: 51 65 85; /* base-600 #334155 */
+    --texto: 241 245 249;
+    --texto-suave: 148 163 184;
+    --texto-tenue: 100 116 139;
+    --acento: 20 184 166; /* #14b8a6 */
+    --acento-suave: 94 234 212; /* #5eead4 */
+    --sobre-acento: 6 9 16;
+    --sucesso: 52 211 153; /* #34d399 */
+    --atencao: 245 158 11; /* #f59e0b */
+    --perigo: 239 68 68;
+    --tinta-acento: 16 46 59;
+    --tinta-sucesso: 20 49 58;
+    --tinta-atencao: 47 42 38;
+    --tinta-perigo: 46 29 46;
+    /* o truque do fono: fio de luz de 1px no topo do card, sem glow */
+    --sombra-card: 0 10px 30px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    --sombra-flutuante: 0 16px 48px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  }
+
+  html,
+  body,
+  #root {
+    @apply bg-fundo text-texto;
+    min-height: 100dvh;
+  }
+
+  body {
+    margin: 0;
+    @apply font-sans antialiased;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    text-rendering: optimizeLegibility;
+    -webkit-tap-highlight-color: transparent;
+    /* sem "puxar e quicar" a página inteira; quem rola é o conteúdo.
+       Safe-area NÃO vai aqui: vai nos elementos fixos (topo, nav, rodapé de sheet). */
+    overscroll-behavior-y: none;
+  }
+
+  ::selection {
+    @apply bg-acento/30;
+  }
+
+  :focus-visible {
+    outline: 2px solid rgb(var(--acento));
+    outline-offset: 2px;
+  }
+
+  /* números (brilho, horas, datas) alinham: algarismos de largura fixa */
+  .font-mono {
+    font-variant-numeric: tabular-nums;
+  }
+
+  input[type='number']::-webkit-outer-spin-button,
+  input[type='number']::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type='number'] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+}
+
+@layer components {
+  /* Cascata: filhos aparecem escalonados (~50ms) em vez de todos de uma vez.
+     Use no contêiner da lista/painéis. Depois do 10º, todos juntos — lista
+     longa não pode virar uma fila de espera. */
+  .cascata > * {
+    animation: subir 0.36s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .cascata > *:nth-child(1) { animation-delay: 0.02s; }
+  .cascata > *:nth-child(2) { animation-delay: 0.07s; }
+  .cascata > *:nth-child(3) { animation-delay: 0.12s; }
+  .cascata > *:nth-child(4) { animation-delay: 0.17s; }
+  .cascata > *:nth-child(5) { animation-delay: 0.22s; }
+  .cascata > *:nth-child(6) { animation-delay: 0.27s; }
+  .cascata > *:nth-child(7) { animation-delay: 0.32s; }
+  .cascata > *:nth-child(8) { animation-delay: 0.37s; }
+  .cascata > *:nth-child(9) { animation-delay: 0.42s; }
+  .cascata > *:nth-child(n + 10) { animation-delay: 0.45s; }
+
+  /* rolagem interna sem barra gorda (sheet, listas longas) */
+  .rolagem-fina {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(var(--borda-forte)) transparent;
+    overscroll-behavior: contain;
+  }
+
+  /* placeholder de carregamento: brilho que atravessa devagar, sóbrio */
+  .esqueleto {
+    background: linear-gradient(
+      90deg,
+      rgb(var(--superficie-alta)) 0%,
+      rgb(var(--borda)) 50%,
+      rgb(var(--superficie-alta)) 100%
+    );
+    background-size: 200% 100%;
+    animation: brilho 1.6s linear infinite;
+  }
+}
+
+/*
+ * Deslizador (input range) com trilho próprio. O trilho vem em --trilho (o
+ * componente monta: preenchimento até --pct no brilho, quente→frio na
+ * temperatura). É o único lugar com degradê, e ele é informação, não enfeite.
+ */
+@layer components {
+  .deslizador {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 2.75rem; /* alvo de toque de 44px; o trilho visível é mais fino */
+    background: transparent;
+    cursor: pointer;
+    touch-action: pan-y;
+  }
+  .deslizador:focus-visible {
+    outline: none;
+  }
+  .deslizador::-webkit-slider-runnable-track {
+    height: 0.75rem;
+    border-radius: 999px;
+    background: var(--trilho);
+    box-shadow: inset 0 0 0 1px rgb(var(--borda));
+  }
+  .deslizador::-moz-range-track {
+    height: 0.75rem;
+    border-radius: 999px;
+    background: var(--trilho);
+    box-shadow: inset 0 0 0 1px rgb(var(--borda));
+  }
+  .deslizador::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 1.625rem;
+    height: 1.625rem;
+    margin-top: -0.4375rem;
+    border-radius: 999px;
+    background: rgb(var(--texto));
+    border: 3px solid rgb(var(--superficie));
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+    transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .deslizador::-moz-range-thumb {
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 999px;
+    background: rgb(var(--texto));
+    border: 3px solid rgb(var(--superficie));
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  }
+  .deslizador:active::-webkit-slider-thumb {
+    transform: scale(1.12);
+  }
+  .deslizador:focus-visible::-webkit-slider-thumb {
+    outline: 2px solid rgb(var(--acento));
+    outline-offset: 2px;
+  }
+  .deslizador:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  /* seletor de cor nativo vestido de amostra: some a moldura do navegador */
+  .amostra-nativa {
+    -webkit-appearance: none;
+    appearance: none;
+    border: none;
+    padding: 0;
+    background: transparent;
+    cursor: pointer;
+  }
+  .amostra-nativa::-webkit-color-swatch-wrapper {
+    padding: 0;
+  }
+  .amostra-nativa::-webkit-color-swatch {
+    border: none;
+    border-radius: 999px;
+  }
+  .amostra-nativa::-moz-color-swatch {
+    border: none;
+    border-radius: 999px;
+  }
+}
+
+/* Movimento desligado pra quem pediu. Vale pra tudo: animação, transição e o
+   Contador/BarraProgresso (que também checam a media query no JS). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
