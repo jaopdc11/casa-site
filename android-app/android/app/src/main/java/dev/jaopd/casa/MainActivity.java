@@ -104,7 +104,10 @@ public class MainActivity extends BridgeActivity {
         int barrasECorte = WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout();
         ViewCompat.setOnApplyWindowInsetsListener(container, (v, insets) -> {
             Insets barras = insets.getInsets(barrasECorte);
-            v.setPadding(barras.left, barras.top, barras.right, barras.bottom);
+            // Edge-to-edge (targetSdk 35+) não redimensiona sozinho com o teclado: o teclado entra
+            // como padding de baixo, aí o WebView encolhe e o botão do login fica visível.
+            Insets teclado = insets.getInsets(WindowInsetsCompat.Type.ime());
+            v.setPadding(barras.left, barras.top, barras.right, Math.max(barras.bottom, teclado.bottom));
             return new WindowInsetsCompat.Builder(insets).setInsets(barrasECorte, Insets.NONE).build();
         });
         ViewCompat.requestApplyInsets(container);
