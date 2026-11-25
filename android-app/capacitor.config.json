@@ -1,0 +1,19 @@
+{
+  "appId": "dev.jaopd.casa",
+  "appName": "Casa",
+  "webDir": "www",
+  "server": {
+    "cleartext": false,
+    "androidScheme": "https"
+  },
+  "loggingBehavior": "none",
+  "android": {
+    "allowMixedContent": false,
+    "appendUserAgent": "CasaApp"
+  },
+  "plugins": {
+    "SystemBars": {
+      "insetsHandling": "disable"
+    }
+  }
+}
