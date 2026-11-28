@@ -7,7 +7,7 @@
 // - foco: voltar para o app relê tudo (o celular derruba o SSE em segundo plano).
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import { listarAparelhos } from '@/features/luz/luz.queries'
+import { atualizarAparelhos, listarAparelhos } from '@/features/luz/luz.queries'
 import { listarPresets } from '@/features/presets/presets.queries'
 import { listarHorarios } from '@/features/horarios/horarios.queries'
 import { comAtraso, ouvirCasa, reabrirSeFechado } from './eventos'
@@ -73,16 +73,27 @@ export function ProvedorCasa({ children }: { children: ReactNode }) {
     [carregarAparelhos, carregarPresets, carregarHorarios],
   )
 
-  const recarregarTudo = useCallback(() => {
-    void carregarAparelhos()
-    void carregarPresets()
-    void carregarHorarios()
-  }, [carregarAparelhos, carregarPresets, carregarHorarios])
-
   const aplicarEstado = useCallback(
     (id: string, estado: Estado | null) => mudarAparelhos((l) => l.map((a) => (a.id === id ? { ...a, estado } : a))),
     [mudarAparelhos],
   )
+
+  // O estado guardado pode ter até um ciclo de polling de atraso (alguém mexeu no interruptor):
+  // depois da lista, pede a leitura de verdade, senão o botão manda o contrário do que se vê.
+  const lerAgora = useCallback(async () => {
+    try {
+      const l = await atualizarAparelhos()
+      l.forEach((a) => aplicarEstado(a.id, a.estado))
+    } catch {
+      // sem leitura ao vivo fica o estado guardado; o polling corrige depois
+    }
+  }, [aplicarEstado])
+
+  const recarregarTudo = useCallback(() => {
+    void carregarAparelhos().then(lerAgora)
+    void carregarPresets()
+    void carregarHorarios()
+  }, [carregarAparelhos, carregarPresets, carregarHorarios, lerAgora])
 
   useEffect(() => {
     recarregarTudo()
