@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content" />
+    <meta name="theme-color" content="#060910" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+    <title>Casa</title>
+    <script>
+      // Aplica o tema ANTES do render para não piscar (mesma regra de src/lib/tema.ts).
+      // Escuro é o padrão; "sistema" segue o aparelho; "claro" só se escolhido.
+      var pref = 'escuro'
+      try {
+        pref = localStorage.getItem('casa:tema') || 'escuro'
+      } catch (e) {}
+      var escuro =
+        pref === 'escuro' ||
+        (pref === 'sistema' && !(window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches))
+      if (escuro) document.documentElement.classList.add('dark')
+      else document.querySelector('meta[name="theme-color"]').setAttribute('content', '#f4f6f9')
+    </script>
+    <script type="module" crossorigin src="./assets/index-DucRYuE8.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-CjRt4mbD.css">
+  <link rel="manifest" href="./manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="./registerSW.js"></script></head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
