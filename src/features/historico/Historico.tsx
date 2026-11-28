@@ -11,7 +11,7 @@ const ORIGENS: Record<string, { rotulo: string; icone: NomeIcone }> = {
   app: { rotulo: 'Aplicativo', icone: 'smartphone' },
   argos: { rotulo: 'WhatsApp', icone: 'message' },
   horario: { rotulo: 'Horário programado', icone: 'clock' },
-  externo: { rotulo: 'Smart Life', icone: 'cloud' },
+  externo: { rotulo: 'App Tuya', icone: 'cloud' },
   api: { rotulo: 'API', icone: 'code' },
 }
 
@@ -146,7 +146,7 @@ function LinhaEvento({ ev, aoTocar }: { ev: EventoLog; aoTocar: () => void }) {
 
 // Textos fixos que a API grava em português informal: versão para a interface.
 function detalheLegivel(d: string): string {
-  if (d === 'mudou por fora da API') return 'Alteração feita fora deste sistema (aplicativo Smart Life ou interruptor).'
+  if (d === 'mudou por fora da API') return 'Alteração feita fora deste sistema (aplicativo Tuya ou interruptor).'
   return d
 }
 
