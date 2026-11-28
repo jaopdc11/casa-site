@@ -1,8 +1,8 @@
-// Estado compartilhado da casa: aparelhos, presets, horários e histórico.
+// Estado compartilhado da casa: aparelhos, presets e horários.
 //
 // Uma fonte só, porque as telas se cruzam (Início usa presets, Presets aplica
 // na luz, Horários precisa do aparelho). Quem mantém fresco:
-// - SSE (lib/eventos.ts): 'estado' entra direto; 'horarios'/'presets'/'eventos'
+// - SSE (lib/eventos.ts): 'estado' entra direto; 'horarios'/'presets'
 //   releem a lista correspondente;
 // - foco: voltar para o app relê tudo (o celular derruba o SSE em segundo plano).
 
@@ -10,9 +10,8 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { listarAparelhos } from '@/features/luz/luz.queries'
 import { listarPresets } from '@/features/presets/presets.queries'
 import { listarHorarios } from '@/features/horarios/horarios.queries'
-import { listarEventos } from '@/features/historico/historico.queries'
 import { comAtraso, ouvirCasa, reabrirSeFechado } from './eventos'
-import type { Aparelho, Estado, EventoLog, Horario, Preset } from './tipos'
+import type { Aparelho, Estado, Horario, Preset } from './tipos'
 
 export type Recurso<T> = {
   dados: T | null
@@ -20,13 +19,12 @@ export type Recurso<T> = {
   carregando: boolean
 }
 
-type Nome = 'aparelhos' | 'presets' | 'horarios' | 'eventos'
+type Nome = 'aparelhos' | 'presets' | 'horarios'
 
 type Ctx = {
   aparelhos: Recurso<Aparelho[]>
   presets: Recurso<Preset[]>
   horarios: Recurso<Horario[]>
-  eventos: Recurso<EventoLog[]>
   recarregar: (n: Nome) => Promise<void>
   recarregarTudo: () => void
   /** troca o estado de um aparelho na hora (SSE, UI otimista, rollback) */
@@ -69,19 +67,17 @@ export function ProvedorCasa({ children }: { children: ReactNode }) {
   const [aparelhos, carregarAparelhos, mudarAparelhos] = useRecurso(listarAparelhos)
   const [presets, carregarPresets, mudarPresets] = useRecurso(listarPresets)
   const [horarios, carregarHorarios, mudarHorarios] = useRecurso(listarHorarios)
-  const [eventos, carregarEventos] = useRecurso(useCallback(() => listarEventos(), []))
 
   const recarregar = useCallback(
-    (n: Nome) => ({ aparelhos: carregarAparelhos, presets: carregarPresets, horarios: carregarHorarios, eventos: carregarEventos })[n](),
-    [carregarAparelhos, carregarPresets, carregarHorarios, carregarEventos],
+    (n: Nome) => ({ aparelhos: carregarAparelhos, presets: carregarPresets, horarios: carregarHorarios })[n](),
+    [carregarAparelhos, carregarPresets, carregarHorarios],
   )
 
   const recarregarTudo = useCallback(() => {
     void carregarAparelhos()
     void carregarPresets()
     void carregarHorarios()
-    void carregarEventos()
-  }, [carregarAparelhos, carregarPresets, carregarHorarios, carregarEventos])
+  }, [carregarAparelhos, carregarPresets, carregarHorarios])
 
   const aplicarEstado = useCallback(
     (id: string, estado: Estado | null) => mudarAparelhos((l) => l.map((a) => (a.id === id ? { ...a, estado } : a))),
@@ -98,17 +94,16 @@ export function ProvedorCasa({ children }: { children: ReactNode }) {
     const atrasos = {
       horarios: comAtraso(() => void carregarHorarios()),
       presets: comAtraso(() => void carregarPresets()),
-      eventos: comAtraso(() => void carregarEventos()),
     }
     const parar = ouvirCasa((e) => {
       if (e.tipo === 'estado') aplicarEstado(e.aparelho_id, e.estado)
-      else atrasos[e.tipo].chamar()
+      else if (e.tipo !== 'eventos') atrasos[e.tipo].chamar()
     })
     return () => {
       parar()
       Object.values(atrasos).forEach((a) => a.cancelar())
     }
-  }, [aplicarEstado, carregarHorarios, carregarPresets, carregarEventos])
+  }, [aplicarEstado, carregarHorarios, carregarPresets])
 
   // Voltou para o app (troca de aba, desbloqueou o celular): relê tudo.
   useEffect(() => {
@@ -129,8 +124,8 @@ export function ProvedorCasa({ children }: { children: ReactNode }) {
   }, [recarregarTudo])
 
   const valor = useMemo<Ctx>(
-    () => ({ aparelhos, presets, horarios, eventos, recarregar, recarregarTudo, aplicarEstado, mudarHorarios, mudarPresets }),
-    [aparelhos, presets, horarios, eventos, recarregar, recarregarTudo, aplicarEstado, mudarHorarios, mudarPresets],
+    () => ({ aparelhos, presets, horarios, recarregar, recarregarTudo, aplicarEstado, mudarHorarios, mudarPresets }),
+    [aparelhos, presets, horarios, recarregar, recarregarTudo, aplicarEstado, mudarHorarios, mudarPresets],
   )
 
   return <ContextoCasa.Provider value={valor}>{children}</ContextoCasa.Provider>

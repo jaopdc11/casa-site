@@ -4,7 +4,6 @@ import { Login } from '@/features/auth/Login'
 import { Inicio } from '@/features/luz/Inicio'
 import { Horarios } from '@/features/horarios/Horarios'
 import { Presets } from '@/features/presets/Presets'
-import { Historico } from '@/features/historico/Historico'
 import { ProvedorToast } from '@/design'
 import { sair, type Usuario } from '@/lib/api'
 import { ProvedorCasa } from '@/lib/casa'
@@ -88,8 +87,6 @@ function Shell({ usuario, tema, aoMudarTema }: { usuario: Usuario; tema: Prefere
         return <Horarios />
       case 'presets':
         return <Presets />
-      case 'historico':
-        return <Historico />
       case 'ajustes':
         return <Ajustes usuario={usuario} tema={tema} aoMudarTema={aoMudarTema} aoSair={() => void sair()} />
     }
